@@ -1,0 +1,9 @@
+{
+	"name": "sarikaadf",
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "463d0d5c-4d5e-4a50-8544-3af9ee0ae39b",
+		"tenantId": "df2a2aa1-0f83-41a9-a687-c0708723d5e3"
+	}
+}
