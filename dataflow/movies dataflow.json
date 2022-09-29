@@ -19,7 +19,16 @@
 					"name": "moviesdb"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "outputcsv",
+						"type": "DatasetReference"
+					},
+					"name": "output",
+					"description": "output dataset"
+				}
+			],
 			"transformations": [
 				{
 					"name": "moviesclean"
@@ -61,16 +70,18 @@
 				"          movieId,",
 				"          title = movies@title,",
 				"          genres = movies@genres,",
-				"          titlenew,",
 				"          movie,",
-				"          title = moviesdb@title,",
 				"          genres = moviesdb@genres,",
 				"          year,",
 				"          Rating,",
 				"          RottenTomato",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select1"
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> output"
 			]
 		}
 	}
