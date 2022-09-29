@@ -1,0 +1,60 @@
+{
+	"name": "movies dataflow",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "movies_csv",
+						"type": "DatasetReference"
+					},
+					"name": "movies"
+				},
+				{
+					"dataset": {
+						"referenceName": "movies_db_csv",
+						"type": "DatasetReference"
+					},
+					"name": "moviesdb"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "moviesclean"
+				},
+				{
+					"name": "joinmovies"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          movieId as string,",
+				"          title as string,",
+				"          genres as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> movies",
+				"source(output(",
+				"          movie as string,",
+				"          title as string,",
+				"          genres as string,",
+				"          year as string,",
+				"          Rating as string,",
+				"          RottenTomato as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> moviesdb",
+				"movies derive(titlenew = toString(left(title,length(title)-6))) ~> moviesclean",
+				"moviesclean join(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinmovies"
+			]
+		}
+	}
+}
