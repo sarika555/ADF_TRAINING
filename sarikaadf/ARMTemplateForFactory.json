@@ -93,6 +93,54 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/pipelineoutput')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "pipelineoutputjoin",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "movies dataflow",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"movies": {},
+									"moviesdb": {},
+									"output": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/movies dataflow')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/cars_blob_csv')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -159,7 +207,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
-						"fileName": "movies.csv",
+						"fileName": "movies_v1.csv",
 						"container": "input"
 					},
 					"columnDelimiter": ",",
@@ -487,13 +535,86 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pipelineoutput')]",
+			"name": "[concat(parameters('factoryName'), '/dataflowagg')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "movies_csv",
+								"type": "DatasetReference"
+							},
+							"name": "moviesv1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "outputcsv",
+								"type": "DatasetReference"
+							},
+							"name": "moviesv1output"
+						},
+						{
+							"dataset": {
+								"referenceName": "outputcsv",
+								"type": "DatasetReference"
+							},
+							"name": "aggregateoutput"
+						}
+					],
+					"transformations": [
+						{
+							"name": "moviesv1derivedColumn1"
+						},
+						{
+							"name": "aggmovies"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          movieId as string,",
+						"          title as string,",
+						"          genres as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> moviesv1",
+						"moviesv1 derive(title = toString(left(title,length(title)-6)),",
+						"          year = toInteger(trim(right(title,6),'()'))) ~> moviesv1derivedColumn1",
+						"moviesv1derivedColumn1 aggregate(groupBy(year),",
+						"     moviescnt = count(year)) ~> aggmovies",
+						"moviesv1derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['moviesderive.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> moviesv1output",
+						"aggmovies sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['aggregateoutput.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> aggregateoutput"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/movies_csv')]",
+				"[concat(variables('factoryId'), '/datasets/outputcsv')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_aggregate')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "pipelineoutputjoin",
+						"name": "pl_aggreagte",
 						"type": "ExecuteDataFlow",
 						"dependsOn": [],
 						"policy": {
@@ -506,18 +627,18 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "movies dataflow",
+								"referenceName": "dataflowagg",
 								"type": "DataFlowReference",
 								"parameters": {},
 								"datasetParameters": {
-									"movies": {},
-									"moviesdb": {},
-									"output": {}
+									"moviesv1": {},
+									"moviesv1output": {},
+									"aggregateoutput": {}
 								}
 							},
 							"staging": {},
 							"compute": {
-								"coreCount": 8,
+								"coreCount": 16,
 								"computeType": "General"
 							},
 							"traceLevel": "Fine"
@@ -532,7 +653,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]",
-				"[concat(variables('factoryId'), '/dataflows/movies dataflow')]"
+				"[concat(variables('factoryId'), '/dataflows/dataflowagg')]"
 			]
 		}
 	]
