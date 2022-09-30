@@ -19,6 +19,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "moviesv1output"
+				},
+				{
+					"dataset": {
+						"referenceName": "outputcsv",
+						"type": "DatasetReference"
+					},
+					"name": "aggregateoutput"
 				}
 			],
 			"transformations": [
@@ -47,7 +54,13 @@
 				"     partitionFileNames:['moviesderive.csv'],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     partitionBy('hash', 1)) ~> moviesv1output"
+				"     partitionBy('hash', 1)) ~> moviesv1output",
+				"aggmovies sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['aggregateoutput.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> aggregateoutput"
 			]
 		}
 	}
