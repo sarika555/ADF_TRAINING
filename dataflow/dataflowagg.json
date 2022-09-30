@@ -1,0 +1,35 @@
+{
+	"name": "dataflowagg",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "movies_csv",
+						"type": "DatasetReference"
+					},
+					"name": "moviesv1"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          movieId as string,",
+				"          title as string,",
+				"          genres as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> moviesv1",
+				"moviesv1 derive(title = toString(left(title,length(title)-6)),",
+				"          year = toInteger(trim(right(title,6),'()'))) ~> derivedColumn1"
+			]
+		}
+	}
+}
