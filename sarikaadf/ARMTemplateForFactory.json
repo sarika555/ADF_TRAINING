@@ -393,6 +393,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
+						"fileName": "@dataset().filename",
 						"container": "output"
 					},
 					"columnDelimiter": ",",
