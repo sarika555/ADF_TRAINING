@@ -24,7 +24,8 @@
 					"dataset": {
 						"referenceName": "listtables",
 						"type": "DatasetReference"
-					}
+					},
+					"firstRowOnly": false
 				}
 			},
 			{
