@@ -526,7 +526,8 @@
 								"referenceName": "listtables",
 								"type": "DatasetReference",
 								"parameters": {}
-							}
+							},
+							"firstRowOnly": false
 						}
 					},
 					{
