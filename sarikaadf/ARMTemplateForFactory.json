@@ -592,8 +592,8 @@
 				"type": "AzureSqlTable",
 				"schema": [],
 				"typeProperties": {
-					"schema": "dbo",
-					"table": "Cars"
+					"schema": "@dataset().schemaname",
+					"table": "@dataset().table_name"
 				}
 			},
 			"dependsOn": [
