@@ -26,6 +26,9 @@
 				},
 				{
 					"name": "exist"
+				},
+				{
+					"name": "lookupcustomerid"
 				}
 			],
 			"scriptLines": [
@@ -67,7 +70,11 @@
 				"customersource derive(Hashkey = sha2(256,iifNull(Title,'')+iifNull(FirstName,'')+iifNull(MiddleName,'')+iifNull(LastName,'')+iifNull(Suffix,'') +iifNull(CompanyName,'') +iifNull(SalesPerson,'') +iifNull(EmailAddress,'') +iifNull(Phone,''))) ~> createHashkey",
 				"createHashkey, sink exists(Createhashkey@Hashkey == Dimcustomer@HashKey,",
 				"     negate:true,",
-				"     broadcast: 'auto')~> exist"
+				"     broadcast: 'auto')~> exist",
+				"exist, sink lookup(customersource@CustomerID == sink@CustomerID,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookupcustomerid"
 			]
 		}
 	}
