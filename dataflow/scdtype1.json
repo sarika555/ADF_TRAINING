@@ -25,7 +25,7 @@
 						"referenceName": "customer_sink",
 						"type": "DatasetReference"
 					},
-					"name": "sink1"
+					"name": "Target"
 				}
 			],
 			"transformations": [
@@ -131,7 +131,7 @@
 				"          InsertedDate,",
 				"          ModifiedDate,",
 				"          HashKey = Hashkey@Hashkey",
-				"     )) ~> sink1"
+				"     )) ~> Target"
 			]
 		}
 	}
