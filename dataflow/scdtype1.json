@@ -31,8 +31,7 @@
 					"name": "lookup"
 				},
 				{
-					"name": "setdates",
-					"description": "Creating/updating the columns 'CustomerID, Title, FirstName, MiddleName, LastName, Suffix, CompanyName, SalesPerson, EmailAddress, Phone, Hashkey, CustomerID, Title, FirstName, MiddleName, LastName, Suffix, CompanyName, SalesPerson, EmailAddress, Phone,HashKey'"
+					"name": "setdates"
 				}
 			],
 			"scriptLines": [
@@ -79,7 +78,8 @@
 				"     multiple: false,",
 				"     pickup: 'any',",
 				"     broadcast: 'auto')~> lookup",
-				"lookup derive({inserted date} = iif(isNull(InsertedDate), currentTimestamp(), {InsertedDate})) ~> setdates"
+				"lookup derive({inserted date} = iif(isNull(InsertedDate), currentTimestamp(), InsertedDate),",
+				"          {modified date} = currentTimestamp()) ~> setdates"
 			]
 		}
 	}
