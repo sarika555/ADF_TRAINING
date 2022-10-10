@@ -39,10 +39,10 @@
 					"name": "lookupcustomerid"
 				},
 				{
-					"name": "Upsert"
+					"name": "setdates"
 				},
 				{
-					"name": "setdates"
+					"name": "upsert"
 				}
 			],
 			"scriptLines": [
@@ -89,10 +89,10 @@
 				"     multiple: false,",
 				"     pickup: 'any',",
 				"     broadcast: 'auto')~> lookupcustomerid",
-				"setdates alterRow(upsertIf(true())) ~> Upsert",
 				"lookupcustomerid derive(InsertedDate = iif(isNull(InsertedDate), currentTimestamp(), InsertedDate),",
 				"          ModifiedDate = currentTimestamp()) ~> setdates",
-				"Upsert sink(allowSchemaDrift: true,",
+				"setdates alterRow(upsertIf(true())) ~> upsert",
+				"upsert sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          CustomerID as integer,",
@@ -116,22 +116,7 @@
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     errorHandlingOption: 'stopOnFirstError',",
-				"     mapColumn(",
-				"          CustomerID = customersource@CustomerID,",
-				"          Title = customersource@Title,",
-				"          FirstName = customersource@FirstName,",
-				"          MiddleName = customersource@MiddleName,",
-				"          LastName = customersource@LastName,",
-				"          Suffix = customersource@Suffix,",
-				"          CompanyName = customersource@CompanyName,",
-				"          SalesPerson = customersource@SalesPerson,",
-				"          EmailAddress = customersource@EmailAddress,",
-				"          Phone = customersource@Phone,",
-				"          InsertedDate,",
-				"          ModifiedDate,",
-				"          HashKey = createHashkey@Hashkey",
-				"     )) ~> sinktarget"
+				"     errorHandlingOption: 'stopOnFirstError') ~> sinktarget"
 			]
 		}
 	}
