@@ -29,6 +29,12 @@
 				},
 				{
 					"name": "lookupcustomerid"
+				},
+				{
+					"name": "setdate"
+				},
+				{
+					"name": "setdates"
 				}
 			],
 			"scriptLines": [
@@ -74,7 +80,10 @@
 				"exist, sink lookup(customersource@CustomerID == sink@CustomerID,",
 				"     multiple: false,",
 				"     pickup: 'any',",
-				"     broadcast: 'auto')~> lookupcustomerid"
+				"     broadcast: 'auto')~> lookupcustomerid",
+				"setdates alterRow() ~> setdate",
+				"lookupcustomerid derive({inserted date} = iif(isNull(InsertedDate), currentTimestamp(), InsertedDate),",
+				"          {modified date} = currentTimestamp()) ~> setdates"
 			]
 		}
 	}
