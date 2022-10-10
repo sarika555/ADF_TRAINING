@@ -110,13 +110,29 @@
 				"          HashKey as string",
 				"     ),",
 				"     deletable:false,",
-				"     insertable:true,",
+				"     insertable:false,",
 				"     updateable:false,",
-				"     upsertable:false,",
+				"     upsertable:true,",
+				"     keys:['CustomerID'],",
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     errorHandlingOption: 'stopOnFirstError') ~> Targetsink"
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          CustomerID = customersource@CustomerID,",
+				"          Title = customersource@Title,",
+				"          FirstName = customersource@FirstName,",
+				"          MiddleName = customersource@MiddleName,",
+				"          LastName = customersource@LastName,",
+				"          Suffix = customersource@Suffix,",
+				"          CompanyName = customersource@CompanyName,",
+				"          SalesPerson = customersource@SalesPerson,",
+				"          EmailAddress = customersource@EmailAddress,",
+				"          Phone = customersink@Phone,",
+				"          InsertedDate,",
+				"          ModifiedDate,",
+				"          HashKey = createhashkey@hashkey",
+				"     )) ~> Targetsink"
 			]
 		}
 	}
