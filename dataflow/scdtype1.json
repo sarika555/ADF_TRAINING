@@ -31,7 +31,8 @@
 					"name": "lookup"
 				},
 				{
-					"name": "setdates"
+					"name": "setdates",
+					"description": "Creating/updating the columns 'CustomerID, Title, FirstName, MiddleName, LastName, Suffix, CompanyName, SalesPerson, EmailAddress, Phone, Hashkey, CustomerID, Title, FirstName, MiddleName, LastName, Suffix, CompanyName, SalesPerson, EmailAddress, Phone,HashKey'"
 				}
 			],
 			"scriptLines": [
