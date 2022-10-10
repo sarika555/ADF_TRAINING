@@ -78,8 +78,7 @@
 				"     multiple: false,",
 				"     pickup: 'any',",
 				"     broadcast: 'auto')~> lookup",
-				"lookup derive({inserted date} = iif(isNull(InsertedDate), currentTimestamp(), InsertedDate),",
-				"          {modified date} = currentTimestamp()) ~> setdates"
+				"lookup derive() ~> setdates"
 			]
 		}
 	}
