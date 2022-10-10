@@ -72,14 +72,14 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> sink",
 				"source derive(Hashkey = sha2(256,iifNull(Title,'')+iifNull(FirstName,'')+iifNull(MiddleName,'')+iifNull(LastName,'')+iifNull(Suffix,'') +iifNull(CompanyName,'') +iifNull(SalesPerson,'') +iifNull(EmailAddress,'') +iifNull(Phone,''))) ~> Hashkey",
-				"Hashkey, sink exists(Createhashkey@Hashkey == Dimcustomer@HashKey,",
+				"Hashkey, sink exists(Hashkey@Hashkey == sink@HashKey,",
 				"     negate:true,",
 				"     broadcast: 'auto')~> exist",
 				"exist, sink lookup(source@CustomerID == sink@CustomerID,",
 				"     multiple: false,",
 				"     pickup: 'any',",
 				"     broadcast: 'auto')~> lookup",
-				"lookup derive() ~> setdates"
+				"lookup derive({inserted date} = iif(isNull(InsertedDate), currentTimestamp(), {InsertedDate})) ~> setdates"
 			]
 		}
 	}
