@@ -1,0 +1,86 @@
+{
+	"name": "scdtype1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "customer_source",
+						"type": "DatasetReference"
+					},
+					"name": "source"
+				},
+				{
+					"dataset": {
+						"referenceName": "customer_sink",
+						"type": "DatasetReference"
+					},
+					"name": "sink"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "Hashkey"
+				},
+				{
+					"name": "exist"
+				},
+				{
+					"name": "lookup"
+				},
+				{
+					"name": "setdates"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          CustomerID as integer,",
+				"          Title as string,",
+				"          FirstName as string,",
+				"          MiddleName as string,",
+				"          LastName as string,",
+				"          Suffix as string,",
+				"          CompanyName as string,",
+				"          SalesPerson as string,",
+				"          EmailAddress as string,",
+				"          Phone as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source",
+				"source(output(",
+				"          CustomerID as integer,",
+				"          Title as string,",
+				"          FirstName as string,",
+				"          MiddleName as string,",
+				"          LastName as string,",
+				"          Suffix as string,",
+				"          CompanyName as string,",
+				"          SalesPerson as string,",
+				"          EmailAddress as string,",
+				"          Phone as string,",
+				"          InsertedDate as timestamp,",
+				"          ModifiedDate as timestamp,",
+				"          HashKey as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> sink",
+				"source derive(Hashkey = sha2(256,iifNull(Title,'')+iifNull(FirstName,'')+iifNull(MiddleName,'')+iifNull(LastName,'')+iifNull(Suffix,'') +iifNull(CompanyName,'') +iifNull(SalesPerson,'') +iifNull(EmailAddress,'') +iifNull(Phone,''))) ~> Hashkey",
+				"Hashkey, sink exists(Createhashkey@Hashkey == Dimcustomer@HashKey,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> exist",
+				"exist, sink lookup(source@CustomerID == sink@CustomerID,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup",
+				"lookup derive({Inserted date} = iif(isNull(InsertedDate), currentTimestamp(), InsertedDate),",
+				"          {modified date} = currentTimestamp()) ~> setdates"
+			]
+		}
+	}
+}
