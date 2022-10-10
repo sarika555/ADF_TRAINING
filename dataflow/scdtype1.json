@@ -19,7 +19,15 @@
 					"name": "sink"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "customer_sink",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "Hashkey"
@@ -32,6 +40,9 @@
 				},
 				{
 					"name": "setdates"
+				},
+				{
+					"name": "upsert"
 				}
 			],
 			"scriptLines": [
@@ -71,7 +82,7 @@
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> sink",
 				"source derive(Hashkey = sha2(256,iifNull(Title,'')+iifNull(FirstName,'')+iifNull(MiddleName,'')+iifNull(LastName,'')+iifNull(Suffix,'') +iifNull(CompanyName,'') +iifNull(SalesPerson,'') +iifNull(EmailAddress,'') +iifNull(Phone,''))) ~> Hashkey",
-				"Hashkey, sink exists(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"Hashkey, sink exists(Hashkey@Hashkey == sink@HashKey,",
 				"     negate:true,",
 				"     broadcast: 'auto')~> exist",
 				"exist, sink lookup(source@CustomerID == sink@CustomerID,",
@@ -79,7 +90,48 @@
 				"     pickup: 'any',",
 				"     broadcast: 'auto')~> lookup",
 				"lookup derive({inserted date} = iif(isNull(InsertedDate), currentTimestamp(), InsertedDate),",
-				"          {modified date} = currentTimestamp()) ~> setdates"
+				"          {modified date} = currentTimestamp()) ~> setdates",
+				"setdates derive({Upsert if} = true()) ~> upsert",
+				"upsert sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          CustomerID as integer,",
+				"          Title as string,",
+				"          FirstName as string,",
+				"          MiddleName as string,",
+				"          LastName as string,",
+				"          Suffix as string,",
+				"          CompanyName as string,",
+				"          SalesPerson as string,",
+				"          EmailAddress as string,",
+				"          Phone as string,",
+				"          InsertedDate as timestamp,",
+				"          ModifiedDate as timestamp,",
+				"          HashKey as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          CustomerID = source@CustomerID,",
+				"          Title = source@Title,",
+				"          FirstName = source@FirstName,",
+				"          MiddleName = source@MiddleName,",
+				"          LastName = source@LastName,",
+				"          Suffix = source@Suffix,",
+				"          CompanyName = source@CompanyName,",
+				"          SalesPerson = source@SalesPerson,",
+				"          EmailAddress = source@EmailAddress,",
+				"          Phone = source@Phone,",
+				"          InsertedDate,",
+				"          ModifiedDate,",
+				"          HashKey = Hashkey@Hashkey",
+				"     )) ~> sink1"
 			]
 		}
 	}
