@@ -31,7 +31,7 @@
 					"name": "lookupcustomerid"
 				},
 				{
-					"name": "setdate"
+					"name": "Upsert"
 				},
 				{
 					"name": "setdates"
@@ -81,7 +81,7 @@
 				"     multiple: false,",
 				"     pickup: 'any',",
 				"     broadcast: 'auto')~> lookupcustomerid",
-				"setdates alterRow() ~> setdate",
+				"setdates alterRow(upsertIf(true())) ~> Upsert",
 				"lookupcustomerid derive({inserted date} = iif(isNull(InsertedDate), currentTimestamp(), InsertedDate),",
 				"          {modified date} = currentTimestamp()) ~> setdates"
 			]
