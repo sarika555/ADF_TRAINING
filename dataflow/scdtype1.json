@@ -42,7 +42,7 @@
 					"name": "setdates"
 				},
 				{
-					"name": "upsert"
+					"name": "UPSERT"
 				}
 			],
 			"scriptLines": [
@@ -91,8 +91,8 @@
 				"     broadcast: 'auto')~> lookup",
 				"lookup derive({inserted date} = iif(isNull(InsertedDate), currentTimestamp(), InsertedDate),",
 				"          {modified date} = currentTimestamp()) ~> setdates",
-				"setdates derive({Upsert if} = true()) ~> upsert",
-				"upsert sink(allowSchemaDrift: true,",
+				"setdates alterRow(upsertIf(true())) ~> UPSERT",
+				"UPSERT sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          CustomerID as integer,",
