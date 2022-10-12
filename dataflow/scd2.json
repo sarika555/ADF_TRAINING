@@ -12,7 +12,15 @@
 					"name": "empfile"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "emptable",
+						"type": "DatasetReference"
+					},
+					"name": "sinkemp1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "addingisactive"
@@ -28,7 +36,15 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> empfile",
-				"empfile derive(isactive = 1) ~> addingisactive"
+				"empfile derive(isactive = 1) ~> addingisactive",
+				"addingisactive sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          year as string,",
+				"          moviescnt as string",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sinkemp1"
 			]
 		}
 	}
