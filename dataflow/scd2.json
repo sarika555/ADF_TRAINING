@@ -1,0 +1,35 @@
+{
+	"name": "scd2",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "empfile",
+						"type": "DatasetReference"
+					},
+					"name": "empfile"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "addingisactive"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          empid as integer,",
+				"          empname as string,",
+				"          gender as string,",
+				"          country as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> empfile",
+				"empfile derive(isactive = 1) ~> addingisactive"
+			]
+		}
+	}
+}
